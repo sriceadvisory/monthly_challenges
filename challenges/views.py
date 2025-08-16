@@ -17,7 +17,7 @@ monthly_challenges = {
     "september": "Walk for 20 minutes a day",
     "october": "Wake up at 5am",
     "november": "Walk for 20 minutes a day",
-    "december": "Eat no meat from 9am - 9pm",
+    "december": None,
 }
 
 # VIEW 1: HOME PAGE - Creates navigation menu for all months
@@ -27,20 +27,12 @@ def home(request):
     Dynamically generates HTML list with clickable month names.
     Each link uses Django's URL reversing for clean, maintainable URLs.
     """
-    list_items = ""  # String to build HTML list items
-    months = list(monthly_challenges.keys())  # Get all month names as list
+    months = list(monthly_challenges.keys())
 
-    # Loop through each month and create clickable list item
-    for month in months:
-        capitalized_month = month.capitalize()  # Format month name for display
-        # Use Django's reverse() to generate URL based on URL pattern name
-        month_path = reverse("month_challenge", args=[month])
-        # Build HTML list item with link
-        list_items += f"<li><a href='{month_path}'>{capitalized_month}</a></li>"
+    return render(request, "challenges/index.html", {
+        "months":months
+    })
 
-    # Wrap all list items in <ul> tags and return as HTTP response
-    response_data = f"<ul>{list_items}</ul>"
-    return HttpResponse(response_data)
 
 # VIEW 2: MONTH BY NUMBER - Redirects numeric month (1-12) to month name
 def monthly_challenge_by_number(request, month):
@@ -71,10 +63,14 @@ def monthly_challenge(request, month):
     """
     try:
         # Look up challenge text for the requested month
+        month = month.lower()
         challenge_text = monthly_challenges[month]
         # Format challenge as HTML heading and return
-        response_data = f"<h1>{challenge_text}</h1>"
-        return HttpResponse(response_data)
+        return render(request, "challenges/challenge.html", {
+            "text": challenge_text,
+            "month": month.capitalize()
+        })
+
     except KeyError:
         # Handle case where month name doesn't exist in our dictionary
         return HttpResponseNotFound("This month is not supported")
