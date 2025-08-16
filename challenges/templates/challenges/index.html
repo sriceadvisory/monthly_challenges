@@ -1,20 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Challenges</title>
-</head>
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'challenges/index.css' %}">
+  <link rel="stylesheet" href="{% static 'challenges/includes/header.css' %}">
+{% endblock %}
 
-<body>
+
+{% block page_title %}
+    Monthly Challenges
+{% endblock %}
+
+{% block content %}
+    {% include "challenges/includes/header.html" %}
     <ul>
         {% for month in months %}
-        <li>
-            <a href="{% url 'month_challenge' month %}">{{ month|title }}</a>
-        </li>
+            <li>
+                <a href="{% url 'month_challenge' month %}">{{ month|title }}</a>
+            </li>
         {% endfor %}
     </ul>
-</body>
-
-</html>
+{% endblock %}
