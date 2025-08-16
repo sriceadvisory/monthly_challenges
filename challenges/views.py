@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponseNotFound, HttpResponseRedirect, Http404
 from django.urls import reverse
 
 # CHALLENGE DATA: Dictionary storing predefined monthly challenges
@@ -20,6 +20,7 @@ monthly_challenges = {
     "december": None,
 }
 
+
 # VIEW 1: HOME PAGE - Creates navigation menu for all months
 def home(request):
     """
@@ -29,9 +30,7 @@ def home(request):
     """
     months = list(monthly_challenges.keys())
 
-    return render(request, "challenges/index.html", {
-        "months":months
-    })
+    return render(request, "challenges/index.html", {"months": months})
 
 
 # VIEW 2: MONTH BY NUMBER - Redirects numeric month (1-12) to month name
@@ -42,17 +41,18 @@ def monthly_challenge_by_number(request, month):
     This creates user-friendly URLs while maintaining flexibility.
     """
     months = list(monthly_challenges.keys())  # Get list of month names
-    
+
     # Validate month number is within valid range (1-12)
     if month > len(months):
         return HttpResponseNotFound("Invalid Month")
-    
+
     # Convert month number to month name (subtract 1 for zero-indexing)
     forward_month = months[month - 1]
-    
+
     # Generate proper URL for the month name and redirect
     forward_path = reverse("month_challenge", args=[forward_month])
     return HttpResponseRedirect(forward_path)
+
 
 # VIEW 3: MONTHLY CHALLENGE - Displays specific month's challenge
 def monthly_challenge(request, month):
@@ -66,11 +66,12 @@ def monthly_challenge(request, month):
         month = month.lower()
         challenge_text = monthly_challenges[month]
         # Format challenge as HTML heading and return
-        return render(request, "challenges/challenge.html", {
-            "text": challenge_text,
-            "month": month.capitalize()
-        })
+        return render(
+            request,
+            "challenges/challenge.html",
+            {"text": challenge_text, "month": month.capitalize()},
+        )
 
     except KeyError:
         # Handle case where month name doesn't exist in our dictionary
-        return HttpResponseNotFound("This month is not supported")
+        raise Http404()
